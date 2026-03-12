@@ -1,7 +1,4 @@
 package Presentation;
-import org.mindrot.jbcrypt.BCrypt;
-import DAO.IStudentDao;
-import DAO.impl.StudentDaoImpl;
 import Model.Student;
 import Business.IStudentService;
 import Business.Impl.StudentServiceImpl;

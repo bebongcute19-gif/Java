@@ -1,8 +1,8 @@
 package Business.Impl;
 
 import Business.IEnrollmentService;
-import DAO.IEnrollmentDao;
-import DAO.impl.EnrollmentDaoImpl;
+import Dao.IEnrollmentDao;
+import Dao.impl.EnrollmentDaoImpl;
 import Model.Enrollment;
 
 import java.util.List;

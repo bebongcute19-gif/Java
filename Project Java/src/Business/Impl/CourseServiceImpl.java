@@ -1,8 +1,8 @@
 package Business.Impl;
 
 import Business.ICourseService;
-import DAO.ICourseDao;
-import DAO.impl.CourseDaoImpl;
+import Dao.ICourseDao;
+import Dao.impl.CourseDaoImpl;
 import Model.Course;
 
 import java.util.Comparator;

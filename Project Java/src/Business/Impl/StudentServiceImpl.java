@@ -2,8 +2,8 @@ package Business.Impl;
 
 import Business.IStudentService;
 import org.mindrot.jbcrypt.BCrypt;
-import DAO.IStudentDao;
-import DAO.impl.StudentDaoImpl;
+import Dao.IStudentDao;
+import Dao.impl.StudentDaoImpl;
 import Model.Student;
 
 import java.util.List;

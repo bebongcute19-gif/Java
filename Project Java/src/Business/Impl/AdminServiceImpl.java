@@ -1,8 +1,8 @@
 package Business.Impl;
 
 import Business.IAdminService;
-import DAO.IAdminDAO;
-import DAO.impl.IAdminDaoImpl;
+import Dao.IAdminDAO;
+import Dao.impl.IAdminDaoImpl;
 import Model.Admin;
 
 public class AdminServiceImpl implements IAdminService {
