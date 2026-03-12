@@ -285,5 +285,24 @@ public class StudentDaoImpl implements IStudentDao {
 
         return list;
     }
+    @Override
+    public boolean changePassword(int studentId, String newPass) {
+
+        String sql = "UPDATE student SET password = ? WHERE id = ?";
+
+        try(Connection conn = ConnectionDB.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ps.setString(1, newPass);
+            ps.setInt(2, studentId);
+
+            return ps.executeUpdate() > 0;
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 
 }

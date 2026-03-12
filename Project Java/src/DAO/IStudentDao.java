@@ -18,6 +18,8 @@ public interface IStudentDao {
 
     List<Student> sortByName();   // sắp xếp theo tên
 
-    List<Student> sortById();     // sắp xếp theo id
+    List<Student> sortById();
+
+    boolean changePassword(int studentId, String newPass);
 
 }

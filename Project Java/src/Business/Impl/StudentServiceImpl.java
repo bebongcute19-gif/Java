@@ -93,4 +93,26 @@ public class StudentServiceImpl implements IStudentService {
     public List<Student> sortById() {
         return studentDao.sortById();
     }
+
+    @Override
+    public boolean changePassword(int studentId, String oldPass, String newPass) {
+
+        // lấy thông tin sinh viên
+        Student student = studentDao.findById(studentId);
+
+        if(student == null){
+            return false;
+        }
+
+        // kiểm tra mật khẩu cũ bằng BCrypt
+        if(!BCrypt.checkpw(oldPass, student.getPassword())){
+            return false;
+        }
+
+        // hash mật khẩu mới
+        String hashedPassword = BCrypt.hashpw(newPass, BCrypt.gensalt(12));
+
+        // cập nhật mật khẩu
+        return studentDao.changePassword(studentId, hashedPassword);
+    }
 }

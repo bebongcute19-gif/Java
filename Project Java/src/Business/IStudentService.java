@@ -22,4 +22,6 @@ public interface IStudentService {
     List<Student> sortByName();
 
     List<Student> sortById();
+
+    boolean changePassword(int studentId, String oldPass, String newPass);
 }

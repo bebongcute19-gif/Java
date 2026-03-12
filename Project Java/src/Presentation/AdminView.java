@@ -12,12 +12,16 @@ import Business.IStudentService;
 import Business.Impl.StudentServiceImpl;
 import Model.Student;
 import java.time.LocalDate;
+import Model.Enrollment;
+import Business.IEnrollmentService;
+import Business.Impl.EnrollmentServiceImpl;
 public class AdminView {
 
     public static Admin adminLogin = null;
     private static final IAdminService adminService = new AdminServiceImpl();
     private static final ICourseService courseService = new CourseServiceImpl();
     private static final IStudentService studentService = new StudentServiceImpl();
+    private static final IEnrollmentService enrollmentService = new EnrollmentServiceImpl();
 
     public static void showMenuLogin(Scanner sc){
 
@@ -87,6 +91,7 @@ public class AdminView {
 
                 case 3:
                     System.out.println("Chức năng quản lý đăng ký học");
+                    menuEnrollment(sc);
                     break;
 
                 case 4:
@@ -472,6 +477,157 @@ public class AdminView {
                             s.getEmail()+" | "+
                             s.getPhone()
             );
+        }
+    }
+    public static void menuEnrollment(Scanner sc){
+
+        while(true){
+
+            System.out.println("===== QUẢN LÝ ĐĂNG KÝ KHÓA HỌC =====");
+            System.out.println("1. Danh sách đăng ký");
+            System.out.println("2. Danh sách theo khóa học");
+            System.out.println("3. Duyệt đăng ký");
+            System.out.println("4. Xóa sinh viên khỏi khóa học");
+            System.out.println("0. Quay lại");
+
+            int choice = Integer.parseInt(sc.nextLine());
+
+            switch (choice){
+
+                case 1:
+                    showAllEnrollment();
+                    break;
+
+                case 2:
+                    findByCourse(sc);
+                    break;
+
+                case 3:
+                    approveEnrollment(sc);
+                    break;
+
+                case 4:
+                    deleteEnrollment(sc);
+                    break;
+
+                case 0:
+                    return;
+            }
+        }
+    }
+    public static void showAllEnrollment(){
+
+        List<Enrollment> list = enrollmentService.findAll();
+
+        for(Enrollment e : list){
+
+            System.out.println(
+                    e.getId()+" | "+
+                            e.getStudentName()+" | "+
+                            e.getCourseName()+" | "+
+                            e.getStatus()+" | "+
+                            e.getRegisteredAt()
+            );
+        }
+    }
+    public static void findByCourse(Scanner sc){
+
+        System.out.print("Nhập ID khóa học: ");
+        int id = Integer.parseInt(sc.nextLine());
+
+        List<Enrollment> list = enrollmentService.findByCourse(id);
+
+        list.forEach(e ->
+                System.out.println(
+                        e.getStudentName()+" | "+
+                                e.getCourseName()+" | "+
+                                e.getStatus()
+                )
+        );
+    }
+    public static void approveEnrollment(Scanner sc){
+
+        List<Enrollment> list = enrollmentService.findWaitingEnrollments();
+
+        if(list.isEmpty()){
+            System.out.println("Không có đăng ký nào cần duyệt");
+            return;
+        }
+
+        System.out.println("===== DANH SÁCH CHỜ DUYỆT =====");
+        System.out.println("ID | STUDENT | COURSE | DATE");
+
+        for(Enrollment e : list){
+            System.out.println(
+                    e.getId()+" | "+
+                            e.getStudentName()+" | "+
+                            e.getCourseName()+" | "+
+                            e.getRegisteredAt()
+            );
+        }
+
+        System.out.print("Nhập ID đăng ký: ");
+        int id = Integer.parseInt(sc.nextLine());
+
+        // tìm enrollment theo id
+        Enrollment enrollment = list.stream()
+                .filter(e -> e.getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if(enrollment == null){
+            System.out.println("Không tìm thấy đăng ký");
+            return;
+        }
+
+        // hiển thị chi tiết
+        System.out.println("===== THÔNG TIN ĐĂNG KÝ =====");
+        System.out.println("Student : " + enrollment.getStudentName());
+        System.out.println("Course  : " + enrollment.getCourseName());
+        System.out.println("Date    : " + enrollment.getRegisteredAt());
+
+        // chọn hành động
+        System.out.println("1. Duyệt");
+        System.out.println("2. Từ chối");
+        System.out.println("0. Hủy");
+
+        int choice = Integer.parseInt(sc.nextLine());
+
+        switch(choice){
+
+            case 1:
+                if(enrollmentService.approve(id, adminLogin.getId())){
+                    System.out.println("Duyệt thành công");
+                }else{
+                    System.out.println("Duyệt thất bại");
+                }
+                break;
+
+            case 2:
+                if(enrollmentService.reject(id)){
+                    System.out.println("Đã từ chối đăng ký");
+                }else{
+                    System.out.println("Từ chối thất bại");
+                }
+                break;
+
+            case 0:
+                System.out.println("Đã hủy thao tác");
+                break;
+
+            default:
+                System.out.println("Lựa chọn không hợp lệ");
+        }
+    }
+    public static void deleteEnrollment(Scanner sc){
+        System.out.println("---Xóa sinh viên khỏi khóa học---");
+        System.out.print("Nhập ID đăng ký: ");
+        int id = Integer.parseInt(sc.nextLine());
+
+        if(enrollmentService.delete(id)){
+            System.out.println("Xóa thành công");
+        }else{
+            System.out.println("Xóa thất bại");
         }
     }
 }
