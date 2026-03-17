@@ -1,6 +1,7 @@
 
-import Presentation.AdminView;
-import Presentation.StudentView;//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
+import presentation.AdminView;
+import presentation.StudentRegister;
+import presentation.StudentView;//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 import java.util.Scanner;
 
@@ -15,12 +16,19 @@ public class Main {
                     3. Đăng nhập với quyền admin
                     4. Thoát
                     """);
-            System.out.println("Nhap lua chon : ");
-            int choice = Integer.parseInt(sc.nextLine());
+            System.out.println("Nhập lựa chọn : ");
+            int choice;
+
+            try{
+                choice = Integer.parseInt(sc.nextLine());
+            }catch(Exception e){
+                System.out.println("Vui lòng nhập số!");
+                continue;
+            }
 
             switch (choice){
                 case 1:
-                    StudentView.showMenuRegister(sc);
+                    StudentRegister.showMenuRegister(sc);
                     break;
                 case 2:
                     StudentView.showMenuLogin(sc);
@@ -29,10 +37,12 @@ public class Main {
                     AdminView.showMenuLogin(sc);
                     break;
                 case 4:
-                    System.out.println("Thoat chuong trình");
+                    System.out.println("Thoát chương trình");
                     sc.close();
                     return;
-                default:
+                default:{
+                    System.out.println("Lựa chọn không hợp lệ");
+                }
 
             }
         }
