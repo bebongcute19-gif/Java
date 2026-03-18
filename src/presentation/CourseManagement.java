@@ -235,49 +235,59 @@ public class CourseManagement {
         findAll();
     }
 
-    public static void deleteCourse(Scanner sc){
+    public static void deleteCourse(Scanner sc) {
         findAll();
-        System.out.println("Nhập ID khóa học cần xóa:");
+        while (true) {
 
-        int id;
+            System.out.print("Nhập ID khóa học cần xóa: ");
 
-        try{
-            id = Integer.parseInt(sc.nextLine());
-        }catch(Exception e){
-            System.out.println("Vui lòng nhập số!");
-            return;
-        }
+            int id;
 
-        while(true){
-
-            System.out.println("Bạn có chắc muốn xóa?");
-            System.out.println("1. Có");
-            System.out.println("2. Không");
-
-            int confirm;
-
-            try{
-                confirm = Integer.parseInt(sc.nextLine());
-            }catch(Exception e){
+            try {
+                id = Integer.parseInt(sc.nextLine());
+            } catch (Exception e) {
                 System.out.println("Vui lòng nhập số!");
                 continue;
             }
 
-            switch(confirm){
+            // 🔥 CHECK TỒN TẠI
+            Course course = courseService.findById(id);
 
-                case 1:
+            if (course == null) {
+                System.out.println("ID không tồn tại! Vui lòng nhập lại.");
+                continue;
+            }
+
+            // ✅ HIỂN THỊ KHÓA HỌC TÌM ĐƯỢC
+            System.out.println("Khóa học tìm thấy:");
+            System.out.println(course);
+
+            // 🔥 XÁC NHẬN XÓA
+            while (true) {
+                System.out.println("Bạn có chắc muốn xóa?");
+                System.out.println("1. Có");
+                System.out.println("2. Không");
+                System.out.print("Chọn: ");
+
+                int confirm;
+
+                try {
+                    confirm = Integer.parseInt(sc.nextLine());
+                } catch (Exception e) {
+                    System.out.println("Vui lòng nhập số!");
+                    continue;
+                }
+
+                if (confirm == 1) {
                     courseService.deleteCourse(id);
                     System.out.println("Xóa khóa học thành công!");
                     break;
-
-                case 2:
+                } else if (confirm == 2) {
                     System.out.println("Đã hủy xóa");
                     return;
-
-
-                default:
+                } else {
                     System.out.println("Lựa chọn không hợp lệ!");
-                    continue;
+                }
             }
 
             break;

@@ -122,8 +122,19 @@ public class StudentView {
 
     public static void searchCourse(){
 
-        System.out.print("Nhập tên khóa học: ");
-        String keyword = scanner.nextLine();
+        String keyword;
+
+        // ===== validate input =====
+        while(true){
+            System.out.print("Nhập tên khóa học: ");
+            keyword = scanner.nextLine().trim();
+
+            if(keyword.isEmpty()){
+                System.out.println("Không được để trống!");
+            }else{
+                break;
+            }
+        }
 
         List<Course> list = courseService.searchByName(keyword);
 
@@ -132,12 +143,17 @@ public class StudentView {
             return;
         }
 
+        // ===== header =====
+        System.out.printf("%-5s %-25s %-10s %-20s\n",
+                "ID","COURSE NAME","DURATION","INSTRUCTOR");
+
+        // ===== data =====
         for(Course c : list){
-            System.out.println(
-                    c.getId()+" | "+
-                            c.getName()+" | "+
-                            c.getDuration()+" | "+
-                            c.getInstructor()
+            System.out.printf("%-5d %-25s %-10s %-20s\n",
+                    c.getId(),
+                    c.getName(),
+                    c.getDuration(),
+                    c.getInstructor()
             );
         }
     }
@@ -319,18 +335,35 @@ public class StudentView {
     }
     public static void changePassword(Student student){
 
-        System.out.print("Nhập mật khẩu cũ: ");
-        String oldPass = scanner.nextLine();
+        while(true){
 
-        System.out.print("Nhập mật khẩu mới: ");
-        String newPass = scanner.nextLine();
+            System.out.print("Nhập mật khẩu cũ: ");
+            String oldPass = scanner.nextLine().trim();
 
-        boolean result = studentService.changePassword(student.getId(),oldPass,newPass);
+            if(oldPass.isEmpty()){
+                System.out.println("Mật khẩu cũ không được để trống!");
+                continue;
+            }
 
-        if(result){
-            System.out.println("Đổi mật khẩu thành công");
-        }else{
-            System.out.println("Mật khẩu cũ không đúng");
+            System.out.print("Nhập mật khẩu mới: ");
+            String newPass = scanner.nextLine().trim();
+
+            // validate >= 6 ký tự
+            if(newPass.length() < 6){
+                System.out.println("Mật khẩu mới phải từ 6 ký tự trở lên!");
+                continue;
+            }
+
+            boolean result = studentService.changePassword(
+                    student.getId(), oldPass, newPass
+            );
+
+            if(result){
+                System.out.println("Đổi mật khẩu thành công");
+                break; // thoát vòng lặp khi thành công
+            }else{
+                System.out.println("Mật khẩu cũ không đúng, vui lòng nhập lại!");
+            }
         }
     }
 

@@ -29,10 +29,10 @@ public class StudentServiceImpl implements IStudentService {
         studentDao.saveStudent(student);
         return true;
     }
-    @Override
-    public Student findStudentByEmail(String email) {
-        return studentDao.findStudentByEmail(email);
-    }
+        @Override
+        public Student findStudentByEmail(String email) {
+            return studentDao.findStudentByEmail(email);
+        }
 
     // ================= LOGIN =================
     @Override
