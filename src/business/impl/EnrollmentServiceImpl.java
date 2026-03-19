@@ -13,7 +13,26 @@ public class EnrollmentServiceImpl implements IEnrollmentService {
 
     @Override
     public boolean registerCourse(int studentId, int courseId) {
-        return enrollmentDao.registerCourse(studentId, courseId);
+
+        List<Enrollment> list = enrollmentDao.findAll();
+
+        // check trùng
+        for (Enrollment e : list) {
+            if (e.getStudentId() == studentId &&
+                    e.getCourseId() != null &&
+                    e.getCourseId().equals(courseId)) {
+                return false;
+            }
+        }
+
+        // tạo mới
+        Enrollment e = new Enrollment();
+        e.setStudentId(studentId);
+        e.setCourseId(courseId); // có thể null nếu admin thêm thủ công
+
+        enrollmentDao.save(e);
+
+        return true;
     }
 
     @Override
@@ -21,10 +40,6 @@ public class EnrollmentServiceImpl implements IEnrollmentService {
         return enrollmentDao.findByStudentId(studentId);
     }
 
-    @Override
-    public List<Enrollment> getEnrollmentsByStudent(int studentId) {
-        return enrollmentDao.getEnrollmentsByStudent(studentId);
-    }
 
     @Override
     public boolean cancelEnrollment(int studentId, int courseId) {
@@ -36,10 +51,6 @@ public class EnrollmentServiceImpl implements IEnrollmentService {
         return enrollmentDao.sortByName(studentId, asc);
     }
 
-    @Override
-    public List<Enrollment> sortByDate(int studentId, boolean asc) {
-        return enrollmentDao.sortByDate(studentId, asc);
-    }
     @Override
     public List<Enrollment> sortCourses(int studentId, int type) {
         return enrollmentDao.sortCourses(studentId,type);
@@ -78,5 +89,18 @@ public class EnrollmentServiceImpl implements IEnrollmentService {
     @Override
     public boolean add(int studentId, int courseId) {
         return enrollmentDao.add(studentId, courseId);
+    }
+
+    @Override
+    public boolean existsByCourseId(int courseId) {
+        List<Enrollment> list = enrollmentDao.findAll();
+
+        for (Enrollment e : list) {
+            if (e.getCourseId() != null && e.getCourseId().equals(courseId)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

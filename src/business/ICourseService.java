@@ -18,14 +18,18 @@ public interface ICourseService {
     void updateCourse(Course course);
 
     // xóa khóa học
-    void deleteCourse(int id);
+    boolean deleteCourse(int id);
 
     // tìm kiếm theo tên
     List<Course> searchByName(String name);
 
-    // sắp xếp theo id
+
+    // --- SORT theo ID với tăng/giảm ---
+
     List<Course> sortById();
 
-    // sắp xếp theo tên
     List<Course> sortByName();
+
+    //check trùng tên
+    boolean existsByName(String name);
 }

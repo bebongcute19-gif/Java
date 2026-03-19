@@ -5,13 +5,11 @@ import dao.ICourseDao;
 import dao.impl.CourseDaoImpl;
 import model.Course;
 
-import java.util.Comparator;
 import java.util.List;
 
 public class CourseServiceImpl implements ICourseService {
 
     private final ICourseDao courseDao = new CourseDaoImpl();
-
 
     @Override
     public List<Course> findAll() {
@@ -34,8 +32,13 @@ public class CourseServiceImpl implements ICourseService {
     }
 
     @Override
-    public void deleteCourse(int id) {
-        courseDao.deleteCourse(id);
+    public boolean deleteCourse(int id) {
+        try {
+            return courseDao.deleteCourse(id);
+        } catch (RuntimeException e) {
+            if ("COURSE_HAS_ENROLLMENT".equals(e.getMessage())) return false;
+            throw e;
+        }
     }
 
     @Override
@@ -50,11 +53,12 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public List<Course> sortByName() {
+        return courseDao.sortByName();
+    }
 
-        List<Course> list = courseDao.findAll();
-
-        list.sort(Comparator.comparing(Course::getName));
-
-        return list;
+    @Override
+    public boolean existsByName(String name) {
+        return courseDao.findAll().stream()
+                .anyMatch(c -> c.getName().equalsIgnoreCase(name));
     }
 }

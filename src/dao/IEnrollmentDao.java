@@ -6,8 +6,6 @@ import java.util.List;
 
 public interface IEnrollmentDao {
 
-    boolean registerCourse(int studentId, int courseId);
-
     List<Enrollment> findByStudentId(int studentId);
 
     List<Enrollment> getEnrollmentsByStudent(int studentId);
@@ -35,4 +33,6 @@ public interface IEnrollmentDao {
     boolean reject(int enrollmentId);
 
     boolean add(int studentId, int courseId);
+
+    boolean save(Enrollment e);
 }

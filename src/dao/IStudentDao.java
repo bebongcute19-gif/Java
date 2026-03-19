@@ -12,13 +12,13 @@ public interface IStudentDao {
 
     void updateStudent(Student student); // chỉnh sửa
 
-    void deleteStudent(int id);   // xóa
+    boolean deleteStudent(int id);   // xóa
 
     List<Student> search(String keyword); // tìm kiếm
 
-    List<Student> sortByName();   // sắp xếp theo tên
+    List<Student> sortById(String order);
 
-    List<Student> sortById();
+    List<Student> sortByName(String order);
 
     boolean changePassword(int studentId, String newPass);
 

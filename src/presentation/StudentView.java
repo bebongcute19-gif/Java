@@ -157,30 +157,49 @@ public class StudentView {
             );
         }
     }
-    private static void registerCourse(Student student){
+    private static void registerCourse(Student student) {
 
-        showAllCourse(); // hiển thị danh sách khóa học trước
+        while (true) {
 
-        int courseId;
+            showAllCourse(); // hiển thị danh sách
 
-        while(true){
+            int courseId;
 
-            System.out.print("Nhập ID khóa học muốn đăng ký: ");
+            while (true) {
+                System.out.print("Nhập ID khóa học muốn đăng ký: ");
 
-            try{
-                courseId = Integer.parseInt(scanner.nextLine());
-                break;
-            }catch(Exception e){
-                System.out.println("ID phải là số!");
+                try {
+                    courseId = Integer.parseInt(scanner.nextLine());
+                    break;
+                } catch (Exception e) {
+                    System.out.println("ID phải là số!");
+                }
             }
-        }
 
-        boolean rs = enrollmentService.registerCourse(student.getId(), courseId);
+            boolean rs = enrollmentService.registerCourse(student.getId(), courseId);
 
-        if(rs){
-            System.out.println("Đăng ký thành công (chờ duyệt)");
-        }else{
-            System.out.println("Bạn đã đăng ký khóa học này!");
+            if (rs) {
+                System.out.println("Đăng ký thành công (chờ duyệt)");
+                break; // 🔥 chỉ thoát khi thành công
+            } else {
+                System.out.println("Bạn đã đăng ký khóa học này hoặc ID không hợp lệ!");
+
+                // 👉 cho chọn tiếp hay thoát
+                System.out.println("1. Nhập lại");
+                System.out.println("2. Thoát");
+                System.out.print("Chọn: ");
+
+                try {
+                    int choice = Integer.parseInt(scanner.nextLine());
+
+                    if (choice == 2) {
+                        return; // thoát luôn
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Vui lòng nhập số!");
+                }
+            }
         }
     }
 

@@ -10,32 +10,6 @@ import java.util.List;
 
 public class EnrollmentDaoImpl implements IEnrollmentDao {
 
-    @Override
-    public boolean registerCourse(int studentId, int courseId) {
-
-        if(isRegistered(studentId,courseId)){
-            return false;
-        }
-
-        String sql = """
-                INSERT INTO enrollment(student_id,course_id,status)
-                VALUES(?,?, 'WAITING')
-                """;
-
-        try(Connection conn = ConnectionDB.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)){
-
-            ps.setInt(1,studentId);
-            ps.setInt(2,courseId);
-
-            return ps.executeUpdate() > 0;
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
-        return false;
-    }
 
     @Override
     public boolean isRegistered(int studentId, int courseId) {
@@ -490,6 +464,29 @@ public class EnrollmentDaoImpl implements IEnrollmentDao {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        return false;
+    }
+    @Override
+    public boolean save(Enrollment e) {
+
+        String sql = """
+        INSERT INTO enrollment(student_id, course_id, status)
+        VALUES (?, ?, ?)
+    """;
+
+        try(Connection conn = ConnectionDB.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)){
+
+            ps.setInt(1, e.getStudentId());
+            ps.setInt(2, e.getCourseId());
+            ps.setString(3, e.getStatus());
+
+            return ps.executeUpdate() > 0;
+
+        }catch(Exception ex){
+            ex.printStackTrace();
         }
 
         return false;
