@@ -5,6 +5,7 @@ import dao.IStudentDao;
 import model.Student;
 import utils.ConnectionDB;
 import java.util.ArrayList;
+import org.postgresql.util.PSQLException;
 
 public class StudentDaoImpl implements IStudentDao {
     @Override
@@ -156,21 +157,28 @@ public class StudentDaoImpl implements IStudentDao {
     }
 
     @Override
-    public void deleteStudent(int id) {
+    public boolean deleteStudent(int id) {
+        String sql = "DELETE FROM student WHERE id = ?";
 
-        String sql = "DELETE FROM student WHERE id=?";
-
-        try(
+        try (
                 Connection conn = ConnectionDB.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)
-        ){
+        ) {
 
-            ps.setInt(1,id);
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
 
-            ps.executeUpdate();
+        } catch (PSQLException e) {
+            //
+            if ("23503".equals(e.getSQLState()) || "23001".equals(e.getSQLState())) {
+                throw new RuntimeException("STUDENT_HAS_ENROLLMENT");
+            }
 
-        }catch (Exception e){
+            throw new RuntimeException("DB_ERROR");
+
+        } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("SYSTEM_ERROR");
         }
     }
 
@@ -179,7 +187,7 @@ public class StudentDaoImpl implements IStudentDao {
 
         List<Student> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM student WHERE name ILIKE ? OR email ILIKE ?";
+        String sql = "SELECT * FROM student WHERE name ILIKE ? OR email ILIKE ? OR phone = ?";
 
         try(
                 Connection conn = ConnectionDB.getConnection();
@@ -188,7 +196,7 @@ public class StudentDaoImpl implements IStudentDao {
 
             ps.setString(1,"%"+keyword+"%");
             ps.setString(2,"%"+keyword+"%");
-
+            ps.setString(3,keyword);
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()){
@@ -215,11 +223,11 @@ public class StudentDaoImpl implements IStudentDao {
     }
 
     @Override
-    public List<Student> sortByName() {
+    public List<Student> sortById(String order) {
 
         List<Student> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM student ORDER BY name";
+        String sql = "SELECT * FROM student ORDER BY id " + order;
 
         try(
                 Connection conn = ConnectionDB.getConnection();
@@ -228,7 +236,6 @@ public class StudentDaoImpl implements IStudentDao {
         ){
 
             while(rs.next()){
-
                 Student s = new Student(
                         rs.getInt("id"),
                         rs.getString("name"),
@@ -249,13 +256,13 @@ public class StudentDaoImpl implements IStudentDao {
 
         return list;
     }
-
     @Override
-    public List<Student> sortById() {
+    public List<Student> sortByName(String order) {
 
         List<Student> list = new ArrayList<>();
 
-        String sql = "SELECT * FROM student ORDER BY id";
+        String sql = "SELECT * FROM student ORDER BY " +
+                "split_part(name, ' ', array_length(string_to_array(name, ' '), 1)) " + order + " ,name " + order;
 
         try(
                 Connection conn = ConnectionDB.getConnection();
@@ -264,7 +271,6 @@ public class StudentDaoImpl implements IStudentDao {
         ){
 
             while(rs.next()){
-
                 Student s = new Student(
                         rs.getInt("id"),
                         rs.getString("name"),

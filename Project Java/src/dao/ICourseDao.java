@@ -13,9 +13,13 @@ public interface ICourseDao {
 
     void updateCourse(Course course);
 
-    void deleteCourse(Integer id);
+    boolean deleteCourse(int id);
 
     List<Course> searchByName(String name);
 
+
+    // --- SORT mặc định tăng dần ---
     List<Course> sortById();
+
+    List<Course> sortByName();
 }

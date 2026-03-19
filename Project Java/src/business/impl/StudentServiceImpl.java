@@ -29,10 +29,10 @@ public class StudentServiceImpl implements IStudentService {
         studentDao.saveStudent(student);
         return true;
     }
-    @Override
-    public Student findStudentByEmail(String email) {
-        return studentDao.findStudentByEmail(email);
-    }
+        @Override
+        public Student findStudentByEmail(String email) {
+            return studentDao.findStudentByEmail(email);
+        }
 
     // ================= LOGIN =================
     @Override
@@ -54,15 +54,6 @@ public class StudentServiceImpl implements IStudentService {
         return studentDao.findAll();
     }
 
-    @Override
-    public void saveStudent(Student student) {
-
-        student.setPassword(
-                BCrypt.hashpw(student.getPassword(), BCrypt.gensalt(12))
-        );
-
-        studentDao.saveStudent(student);
-    }
 
     @Override
     public Student findById(int id) {
@@ -75,8 +66,17 @@ public class StudentServiceImpl implements IStudentService {
     }
 
     @Override
-    public void deleteStudent(int id) {
-        studentDao.deleteStudent(id);
+    public boolean deleteStudent(int id) {
+        try {
+            return studentDao.deleteStudent(id); //
+        } catch (RuntimeException e) {
+
+            if ("STUDENT_HAS_ENROLLMENT".equals(e.getMessage())) {
+                return false; //
+            }
+
+            throw e; // lỗi khác → đẩy lên
+        }
     }
 
     @Override
@@ -85,13 +85,13 @@ public class StudentServiceImpl implements IStudentService {
     }
 
     @Override
-    public List<Student> sortByName() {
-        return studentDao.sortByName();
+    public List<Student> sortById(String order) {
+        return studentDao.sortById(order);
     }
 
     @Override
-    public List<Student> sortById() {
-        return studentDao.sortById();
+    public List<Student> sortByName(String order) {
+        return studentDao.sortByName(order);
     }
 
     @Override

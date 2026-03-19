@@ -355,59 +355,82 @@ public class StudentManagement {
     }
     public static void deleteStudent(Scanner sc){
 
-        findAllStudent();
+        outer:
+        while (true){
 
-        System.out.println("Nhập ID học viên cần xóa:");
-        int id;
+            findAllStudent();
 
-        try{
-            id = Integer.parseInt(sc.nextLine());
-        }catch(Exception e){
-            System.out.println("ID phải là số!");
-            return;
-        }
-
-        Student student = studentService.findById(id);
-
-        if(student == null){
-            System.out.println("Không tồn tại học viên!");
-            return;
-        }
-
-        while(true){
-
-            System.out.println("Bạn có chắc muốn xóa?");
-            System.out.println("1. Có");
-            System.out.println("2. Không");
-
-            int confirm;
+            System.out.println("Nhập ID học viên cần xóa:");
+            int id;
 
             try{
-                confirm = Integer.parseInt(sc.nextLine());
+                id = Integer.parseInt(sc.nextLine());
             }catch(Exception e){
-                System.out.println("Vui lòng nhập số!");
+                System.out.println("ID phải là số!");
                 continue;
             }
 
-            switch(confirm){
+            Student student = studentService.findById(id);
 
-                case 1:
-                    studentService.deleteStudent(id);
-                    System.out.println("Xóa thành công!");
-                    findAllStudent();
-                    break;
-
-                case 2:
-                    System.out.println("Đã hủy xóa");
-                    return;
-
-                default:
-                    System.out.println("Lựa chọn không hợp lệ!");
-                    continue;
+            if(student == null){
+                System.out.println("Không tồn tại học viên!");
+                continue;
             }
 
-            break;
+            while(true){
+
+                System.out.println("Bạn có chắc muốn xóa?");
+                System.out.println("1. Có");
+                System.out.println("2. Không");
+
+                int confirm;
+
+                try{
+                    confirm = Integer.parseInt(sc.nextLine());
+                }catch(Exception e){
+                    System.out.println("Vui lòng nhập số!");
+                    continue;
+                }
+
+                switch(confirm){
+
+                    case 1:
+                        boolean result = studentService.deleteStudent(id);
+
+                        if(!result){
+                            System.out.println("Học viên đã đăng ký khóa học, không thể xóa!");
+
+                            System.out.println("1. Nhập lại ID");
+                            System.out.println("2. Thoát");
+                            System.out.print("Chọn: ");
+
+                            int choice;
+                            try{
+                                choice = Integer.parseInt(sc.nextLine());
+                            }catch(Exception e){
+                                System.out.println("Vui lòng nhập số!");
+                                continue;
+                            }
+
+                            if(choice == 2) return;
+                            else continue outer; //
+                        }
+
+                        System.out.println("Xóa thành công!");
+                        System.out.println("Danh sách sau khi xóa:");
+                        findAllStudent();
+                        return;
+
+                    case 2:
+                        System.out.println("Đã hủy xóa");
+                        return;
+
+                    default:
+                        System.out.println("Lựa chọn không hợp lệ!");
+                }
+            }
         }
+
     }
     public static void searchStudent(Scanner sc){
 
@@ -452,20 +475,41 @@ public class StudentManagement {
                 continue;
             }
 
+            if(choice == 3) return;
+
+            System.out.println("1. Tăng dần");
+            System.out.println("2. Giảm dần");
+            System.out.print("Chọn: ");
+
+            int type;
+            try{
+                type = Integer.parseInt(sc.nextLine());
+            }catch(Exception e){
+                System.out.println("Vui lòng nhập số!");
+                continue;
+            }
+
+            String order;
+            if(type == 1){
+                order = "ASC";
+            }else if(type == 2){
+                order = "DESC";
+            }else{
+                System.out.println("Lựa chọn không hợp lệ!");
+                continue;
+            }
+
             List<Student> list;
 
             switch(choice){
 
                 case 1:
-                    list = studentService.sortById();
+                    list = studentService.sortById(order);
                     break;
 
                 case 2:
-                    list = studentService.sortByName();
+                    list = studentService.sortByName(order);
                     break;
-
-                case 3:
-                    return;
 
                 default:
                     System.out.println("Lựa chọn không hợp lệ!");

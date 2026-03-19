@@ -9,19 +9,18 @@ public interface IStudentService {
     //admin
     List<Student> findAll();
 
-    void saveStudent(Student student);
-
     Student findById(int id);
 
     void updateStudent(Student student);
 
-    void deleteStudent(int id);
+    boolean deleteStudent(int id);
 
     List<Student> search(String keyword);
 
-    List<Student> sortByName();
+    List<Student> sortById(String order);
 
-    List<Student> sortById();
+
+    List<Student> sortByName(String order);
 
     boolean changePassword(int studentId, String oldPass, String newPass);
 

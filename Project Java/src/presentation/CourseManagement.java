@@ -1,7 +1,10 @@
 package presentation;
 
 import business.ICourseService;
+import business.IEnrollmentService;
 import business.impl.CourseServiceImpl;
+
+import business.impl.EnrollmentServiceImpl;
 import model.Course;
 
 import java.util.List;
@@ -10,10 +13,11 @@ import java.util.Scanner;
 public class CourseManagement {
 
     private static final ICourseService courseService = new CourseServiceImpl();
+    private static final IEnrollmentService enrollmentService = new EnrollmentServiceImpl();
 
-    public static void menuCourse(Scanner sc){
+    public static void menuCourse(Scanner sc) {
 
-        while(true){
+        while (true) {
 
             System.out.println("===== QUẢN LÝ KHÓA HỌC =====");
             System.out.println("1. Hiển thị danh sách khóa học");
@@ -27,14 +31,14 @@ public class CourseManagement {
             System.out.println("Chọn chức năng");
             int choice;
 
-            try{
+            try {
                 choice = Integer.parseInt(sc.nextLine());
-            }catch(Exception e){
+            } catch (Exception e) {
                 System.out.println("Vui lòng nhập số!");
                 continue;
             }
 
-            switch(choice){
+            switch (choice) {
 
                 case 1:
                     findAll();
@@ -69,19 +73,19 @@ public class CourseManagement {
         }
     }
 
-    public static void findAll(){
+    public static void findAll() {
 
         List<Course> list = courseService.findAll();
 
-        if(list.isEmpty()){
+        if (list.isEmpty()) {
             System.out.println("Danh sách khóa học trống!");
             return;
         }
 
         System.out.printf("%-5s %-25s %-10s %-20s\n",
-                "ID","NAME","DURATION","INSTRUCTOR");
+                "ID", "NAME", "DURATION", "INSTRUCTOR");
 
-        for(Course c : list){
+        for (Course c : list) {
             System.out.printf("%-5d %-25s %-10d %-20s\n",
                     c.getId(),
                     c.getName(),
@@ -90,83 +94,90 @@ public class CourseManagement {
         }
     }
 
-    public static void addCourse(Scanner sc){
+    public static void addCourse(Scanner sc) {
         System.out.println("-----Thêm khóa học mới-----");
-        String name;
-        while(true){
-            System.out.println("Nhập tên khóa học:");
-            name = sc.nextLine();
 
-            if(!name.trim().isEmpty()){
-                break;
+        String name;
+
+        while (true) {
+            System.out.print("Nhập tên khóa học: ");
+            name = sc.nextLine().trim();
+
+            if (name.isEmpty()) {
+                System.out.println("Tên không được để trống!");
+                continue;
             }
 
-            System.out.println("Tên không được để trống!");
+            if (courseService.existsByName(name)) {
+                System.out.println("Khóa học đã tồn tại!");
+                continue;
+            }
+
+            break;
         }
 
         int duration;
 
-        while(true){
-
-            try{
-
-                System.out.println("Nhập thời lượng:");
+        while (true) {
+            try {
+                System.out.print("Nhập thời lượng: ");
                 duration = Integer.parseInt(sc.nextLine());
 
-                if(duration > 0){
-                    break;
+                if (duration <= 0) {
+                    System.out.println("Thời lượng phải > 0");
+                    continue;
                 }
 
-                System.out.println("Thời lượng phải > 0");
+                break;
 
-            }catch(Exception e){
+            } catch (Exception e) {
                 System.out.println("Vui lòng nhập số!");
             }
         }
 
         String instructor;
 
-        while(true){
-            System.out.println("Nhập giảng viên:");
-            instructor = sc.nextLine();
+        while (true) {
+            System.out.print("Nhập giảng viên: ");
+            instructor = sc.nextLine().trim();
 
-            if(instructor.trim().isEmpty()){
+            if (instructor.isEmpty()) {
                 System.out.println("Tên giảng viên không được để trống!");
-            }else{
+            } else {
                 break;
             }
         }
 
-        Course course = new Course(name,duration,instructor);
+        Course course = new Course(name, duration, instructor);
 
         boolean result = courseService.saveCourse(course);
 
-        if(result){
+        if (result) {
             System.out.println("Thêm khóa học thành công!");
-        }else{
+        } else {
             System.out.println("Thêm khóa học thất bại!");
         }
 
         findAll();
     }
 
-    public static void updateCourse(Scanner sc){
+    public static void updateCourse(Scanner sc) {
         findAll();
         System.out.println("-----Sửa khóa học-----");
         System.out.println("Nhập ID khóa học cần sửa:");
 
         int id;
 
-        try{
+        try {
             id = Integer.parseInt(sc.nextLine());
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println("Vui lòng nhập số!");
             return;
         }
 
         Course course = courseService.findById(id);
 
-        if(course == null){
+        if (course == null) {
             System.out.println("Không tìm thấy khóa học!");
             return;
         }
@@ -177,49 +188,58 @@ public class CourseManagement {
         System.out.println("Giảng viên   : " + course.getInstructor());
 
         // ===== UPDATE NAME =====
-        System.out.println("Nhập tên mới (Enter để giữ nguyên):");
-        String name = sc.nextLine();
 
-        if(!name.isEmpty()){
+        while (true) {
+            System.out.print("Nhập tên mới (Enter để giữ nguyên): ");
+            String name = sc.nextLine().trim();
+
+            if (name.isEmpty()) break; // giữ nguyên
+
+            if (courseService.existsByName(name)) {
+                System.out.println("Tên khóa học đã tồn tại! Hãy nhập lại.");
+                continue;
+            }
+
             course.setName(name);
+            break;
         }
 
         // ===== UPDATE DURATION =====
-        while(true){
+        while (true) {
 
             System.out.println("Nhập thời lượng mới (Enter để giữ nguyên):");
             String input = sc.nextLine();
 
-            if(input.isEmpty()){
+            if (input.isEmpty()) {
                 break;
             }
 
-            try{
+            try {
                 int duration = Integer.parseInt(input);
 
-                if(duration > 0){
+                if (duration > 0) {
                     course.setDuration(duration);
                     break;
                 }
 
                 System.out.println("Thời lượng phải > 0");
 
-            }catch(Exception e){
+            } catch (Exception e) {
                 System.out.println("Vui lòng nhập số!");
             }
         }
 
         // ===== UPDATE INSTRUCTOR =====
-        while(true){
+        while (true) {
 
             System.out.println("Nhập giảng viên mới (Enter để giữ nguyên):");
             String instructor = sc.nextLine();
 
-            if(instructor.isEmpty()){
+            if (instructor.isEmpty()) {
                 break;
             }
 
-            if(instructor.trim().isEmpty()){
+            if (instructor.trim().isEmpty()) {
                 System.out.println("Tên giảng viên không hợp lệ!");
                 continue;
             }
@@ -235,58 +255,117 @@ public class CourseManagement {
         findAll();
     }
 
-    public static void deleteCourse(Scanner sc){
-        findAll();
-        System.out.println("Nhập ID khóa học cần xóa:");
+    public static void deleteCourse(Scanner sc) {
 
-        int id;
-
-        try{
-            id = Integer.parseInt(sc.nextLine());
-        }catch(Exception e){
-            System.out.println("Vui lòng nhập số!");
-            return;
-        }
-
+        outer: // nhãn để quay lại nhập ID
         while(true){
 
-            System.out.println("Bạn có chắc muốn xóa?");
-            System.out.println("1. Có");
-            System.out.println("2. Không");
+            // Hiển thị tất cả khóa học
+            findAll();
 
-            int confirm;
+            System.out.print("Nhập ID khóa học cần xóa: ");
 
-            try{
-                confirm = Integer.parseInt(sc.nextLine());
-            }catch(Exception e){
+            int id;
+            try {
+                id = Integer.parseInt(sc.nextLine());
+            } catch (Exception e) {
                 System.out.println("Vui lòng nhập số!");
                 continue;
             }
 
-            switch(confirm){
-
-                case 1:
-                    courseService.deleteCourse(id);
-                    System.out.println("Xóa khóa học thành công!");
-                    break;
-
-                case 2:
-                    System.out.println("Đã hủy xóa");
-                    return;
-
-
-                default:
-                    System.out.println("Lựa chọn không hợp lệ!");
-                    continue;
+            Course course = courseService.findById(id);
+            if(course == null){
+                System.out.println("ID không tồn tại!");
+                continue;
             }
 
-            break;
-        }
+            // Hiển thị thông tin khóa học
+            System.out.println("Khóa học tìm thấy:");
+            System.out.printf("%-5s %-25s %-10s %-20s\n", "ID", "NAME", "DURATION", "INSTRUCTOR");
+            System.out.printf("%-5d %-25s %-10d %-20s\n",
+                    course.getId(),
+                    course.getName(),
+                    course.getDuration(),
+                    course.getInstructor());
 
-        findAll();
+            while(true){
+                System.out.println("Bạn có chắc muốn xóa?");
+                System.out.println("1. Có");
+                System.out.println("2. Không");
+                System.out.print("Chọn: ");
+
+                int confirm;
+                try {
+                    confirm = Integer.parseInt(sc.nextLine());
+                } catch (Exception e){
+                    System.out.println("Vui lòng nhập số!");
+                    continue;
+                }
+
+                switch(confirm){
+                    case 1:
+                        try{
+                            boolean result = courseService.deleteCourse(id);
+
+                            if(!result){
+                                // khóa học có sinh viên
+                                System.out.println("Khóa học đã có sinh viên đăng ký, không thể xóa!");
+                                System.out.println("1. Nhập lại ID");
+                                System.out.println("2. Thoát");
+                                System.out.print("Chọn: ");
+
+                                int choice;
+                                try{
+                                    choice = Integer.parseInt(sc.nextLine());
+                                }catch(Exception e){
+                                    System.out.println("Vui lòng nhập số!");
+                                    continue outer; // quay lại nhập ID
+                                }
+
+                                if(choice == 2) return;
+                                else continue outer; // quay lại nhập ID
+                            }
+
+                            System.out.println("Xóa khóa học thành công!");
+                            // Hiển thị lại danh sách sau khi xóa
+                            findAll();
+                            return; // thoát sau khi xóa thành công
+
+                        }catch(RuntimeException ex){
+                            if("COURSE_HAS_ENROLLMENT".equals(ex.getMessage())){
+                                System.out.println("Khóa học đã có sinh viên đăng ký, không thể xóa!");
+                                System.out.println("1. Nhập lại ID");
+                                System.out.println("2. Thoát");
+                                System.out.print("Chọn: ");
+
+                                int choice;
+                                try{
+                                    choice = Integer.parseInt(sc.nextLine());
+                                }catch(Exception e){
+                                    System.out.println("Vui lòng nhập số!");
+                                    continue outer;
+                                }
+
+                                if(choice == 2) return;
+                                else continue outer;
+                            }
+
+                            System.out.println("Lỗi hệ thống!");
+                            return;
+                        }
+
+                    case 2:
+                        System.out.println("Đã hủy xóa");
+                        return;
+
+                    default:
+                        System.out.println("Lựa chọn không hợp lệ!");
+                }
+            }
+        }
     }
 
-    public static void searchCourse(Scanner sc){
+    public static void searchCourse(Scanner sc) {
 
         System.out.println("Nhập tên khóa học cần tìm:");
 
@@ -294,15 +373,15 @@ public class CourseManagement {
 
         List<Course> list = courseService.searchByName(keyword);
 
-        if(list.isEmpty()){
+        if (list.isEmpty()) {
             System.out.println("Không tìm thấy khóa học!");
             return;
         }
 
         System.out.printf("%-5s %-25s %-10s %-20s\n",
-                "ID","NAME","DURATION","INSTRUCTOR");
+                "ID", "NAME", "DURATION", "INSTRUCTOR");
 
-        for(Course c : list){
+        for (Course c : list) {
             System.out.printf("%-5d %-25s %-10d %-20s\n",
                     c.getId(),
                     c.getName(),
@@ -311,9 +390,9 @@ public class CourseManagement {
         }
     }
 
-    public static void sortCourse(Scanner sc){
+    public static void sortCourse(Scanner sc) {
 
-        while(true){
+        while (true) {
 
             System.out.println("1. Sắp xếp theo ID");
             System.out.println("2. Sắp xếp theo tên");
@@ -321,16 +400,16 @@ public class CourseManagement {
 
             int choice;
 
-            try{
+            try {
                 choice = Integer.parseInt(sc.nextLine());
-            }catch(Exception e){
+            } catch (Exception e) {
                 System.out.println("Vui lòng nhập số!");
                 continue;
             }
 
             List<Course> list;
 
-            switch(choice){
+            switch (choice) {
 
                 case 1:
                     list = courseService.sortById();
@@ -349,9 +428,9 @@ public class CourseManagement {
             }
 
             System.out.printf("%-5s %-25s %-10s %-20s\n",
-                    "ID","NAME","DURATION","INSTRUCTOR");
+                    "ID", "NAME", "DURATION", "INSTRUCTOR");
 
-            for(Course c : list){
+            for (Course c : list) {
                 System.out.printf("%-5d %-25s %-10d %-20s\n",
                         c.getId(),
                         c.getName(),
@@ -362,18 +441,19 @@ public class CourseManagement {
             break;
         }
     }
-    public static void showAllCourse(){
+
+    public static void showAllCourse() {
 
         List<Course> list = courseService.findAll();
 
-        if(list.isEmpty()){
+        if (list.isEmpty()) {
             System.out.println("Không có khóa học!");
             return;
         }
 
-        System.out.printf("%-5s %-25s\n","ID","COURSE NAME");
+        System.out.printf("%-5s %-25s\n", "ID", "COURSE NAME");
 
-        for(Course c : list){
+        for (Course c : list) {
             System.out.printf("%-5d %-25s\n",
                     c.getId(),
                     c.getName());

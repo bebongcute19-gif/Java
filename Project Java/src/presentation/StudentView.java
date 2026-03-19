@@ -122,8 +122,19 @@ public class StudentView {
 
     public static void searchCourse(){
 
-        System.out.print("Nhập tên khóa học: ");
-        String keyword = scanner.nextLine();
+        String keyword;
+
+        // ===== validate input =====
+        while(true){
+            System.out.print("Nhập tên khóa học: ");
+            keyword = scanner.nextLine().trim();
+
+            if(keyword.isEmpty()){
+                System.out.println("Không được để trống!");
+            }else{
+                break;
+            }
+        }
 
         List<Course> list = courseService.searchByName(keyword);
 
@@ -132,39 +143,63 @@ public class StudentView {
             return;
         }
 
+        // ===== header =====
+        System.out.printf("%-5s %-25s %-10s %-20s\n",
+                "ID","COURSE NAME","DURATION","INSTRUCTOR");
+
+        // ===== data =====
         for(Course c : list){
-            System.out.println(
-                    c.getId()+" | "+
-                            c.getName()+" | "+
-                            c.getDuration()+" | "+
-                            c.getInstructor()
+            System.out.printf("%-5d %-25s %-10s %-20s\n",
+                    c.getId(),
+                    c.getName(),
+                    c.getDuration(),
+                    c.getInstructor()
             );
         }
     }
-    private static void registerCourse(Student student){
+    private static void registerCourse(Student student) {
 
-        showAllCourse(); // hiển thị danh sách khóa học trước
+        while (true) {
 
-        int courseId;
+            showAllCourse(); // hiển thị danh sách
 
-        while(true){
+            int courseId;
 
-            System.out.print("Nhập ID khóa học muốn đăng ký: ");
+            while (true) {
+                System.out.print("Nhập ID khóa học muốn đăng ký: ");
 
-            try{
-                courseId = Integer.parseInt(scanner.nextLine());
-                break;
-            }catch(Exception e){
-                System.out.println("ID phải là số!");
+                try {
+                    courseId = Integer.parseInt(scanner.nextLine());
+                    break;
+                } catch (Exception e) {
+                    System.out.println("ID phải là số!");
+                }
             }
-        }
 
-        boolean rs = enrollmentService.registerCourse(student.getId(), courseId);
+            boolean rs = enrollmentService.registerCourse(student.getId(), courseId);
 
-        if(rs){
-            System.out.println("Đăng ký thành công (chờ duyệt)");
-        }else{
-            System.out.println("Bạn đã đăng ký khóa học này!");
+            if (rs) {
+                System.out.println("Đăng ký thành công (chờ duyệt)");
+                break; // 🔥 chỉ thoát khi thành công
+            } else {
+                System.out.println("Bạn đã đăng ký khóa học này hoặc ID không hợp lệ!");
+
+                // 👉 cho chọn tiếp hay thoát
+                System.out.println("1. Nhập lại");
+                System.out.println("2. Thoát");
+                System.out.print("Chọn: ");
+
+                try {
+                    int choice = Integer.parseInt(scanner.nextLine());
+
+                    if (choice == 2) {
+                        return; // thoát luôn
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Vui lòng nhập số!");
+                }
+            }
         }
     }
 
@@ -319,18 +354,35 @@ public class StudentView {
     }
     public static void changePassword(Student student){
 
-        System.out.print("Nhập mật khẩu cũ: ");
-        String oldPass = scanner.nextLine();
+        while(true){
 
-        System.out.print("Nhập mật khẩu mới: ");
-        String newPass = scanner.nextLine();
+            System.out.print("Nhập mật khẩu cũ: ");
+            String oldPass = scanner.nextLine().trim();
 
-        boolean result = studentService.changePassword(student.getId(),oldPass,newPass);
+            if(oldPass.isEmpty()){
+                System.out.println("Mật khẩu cũ không được để trống!");
+                continue;
+            }
 
-        if(result){
-            System.out.println("Đổi mật khẩu thành công");
-        }else{
-            System.out.println("Mật khẩu cũ không đúng");
+            System.out.print("Nhập mật khẩu mới: ");
+            String newPass = scanner.nextLine().trim();
+
+            // validate >= 6 ký tự
+            if(newPass.length() < 6){
+                System.out.println("Mật khẩu mới phải từ 6 ký tự trở lên!");
+                continue;
+            }
+
+            boolean result = studentService.changePassword(
+                    student.getId(), oldPass, newPass
+            );
+
+            if(result){
+                System.out.println("Đổi mật khẩu thành công");
+                break; // thoát vòng lặp khi thành công
+            }else{
+                System.out.println("Mật khẩu cũ không đúng, vui lòng nhập lại!");
+            }
         }
     }
 
